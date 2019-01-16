@@ -69,19 +69,6 @@ class DeepConvNet():
             x = tf.layers.batch_normalization(x, axis=3, training=self.training)
             x = tf.nn.relu(x)
             return x
-
-    def fc_layer(self, inputs, output_size, scope, use_relu=True):
-        with tf.name_scope(scope):
-            x = inputs
-            w = self.weight_variable([(inputs.shape)[1], output_size])
-            b = self.bias_variable([output_size])
-            x = tf.matmul(x,w) + b
-            
-            x = tf.layers.batch_normalization(x, axis=1, training=self.training)
-            if use_relu:
-                x = tf.nn.relu(x)
-            # x = tf.nn.relu(x)
-            return x
     
     def build_model(self, inputs):
         
