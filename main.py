@@ -19,7 +19,22 @@ def main():
         [2,5] # inner max pool layer, number starts from 0, 2 means 3rd conv layer
     ]
 
-    model_selected = cnn9_params
+    # 6 conv layers network ( total = 6 + 2 fc layers = 8 layers )
+
+    cnn6_params = [
+        [3 for _ in range(6)], # kernal size
+        [16,16,32,32,64,64], # feature maps
+        [1,3] # inner max pool layer, number starts from 0, 2 means 3rd conv layer
+    ]
+
+    cnn12_params = [
+        [3 for _ in range(12) ], # kernal size
+        [16,16,16,16,32,32,32,32,64,64,64,64], # feature maps
+        [1,3] # inner max pool layer, number starts from 0, 2 means 3rd conv layer
+    ]
+    
+
+    model_selected = cnn6_params
     model = student_networks.DeepConvNet(
         xs, # inputs
         [28,28], # image size
@@ -34,6 +49,8 @@ def main():
     )
 
     model.calc_training_loss(None,ys)
+
+
     sess = tf.Session()
 
     if int((tf.__version__).split('.')[1]) < 12 and int((tf.__version__).split('.')[0]) < 1:
@@ -50,28 +67,12 @@ def main():
     #####################################################################
     # training
     #####################################################################
-    iterations = 50000
-    batch_size = 256
-    display_step = 100
 
-    for i in range(iterations):
-        batch_xs, batch_ys = fmnist_data.next_batch(batch_size)
+    # train
+    model.train(sess,fmnist_data)
 
-        feed_dict = {
-            xs: batch_xs,
-            ys: batch_ys
-        }
-        opt, training_loss, model_outputs = sess.run([model.optimizer, model.loss, model.output_logits], feed_dict=feed_dict)
-
-        if i % display_step == 0:
-            predicts = sess.run([model.output_logits], feed_dict={xs: fmnist_data.test_smaples})
-            correct = np.equal(np.argmax(predicts,1),np.argmax(fmnist_data.test_labels,1))
-            test_acc = np.mean(correct*1)
-            correct = np.equal(np.argmax(model_outputs,1),np.argmax(batch_ys,1))
-            training_acc = 
-            print('iteration: {:} epoch: {:} batch loss: {:.5} training accuracy: {:.2} test accuracy: {:.2}'.format(i, fmnist_data.epoch, training_loss, training_acc, test_acc))
-            
-
+    # test
+    model.test(sess,fmnist_data)
 
 if __name__ == '__main__':
     main()
