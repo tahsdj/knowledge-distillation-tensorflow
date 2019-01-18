@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 import keras
 from keras.datasets import cifar10
+from keras.datasets import cifar100
 from keras.utils import to_categorical # for encoding data to one not form
 
 # import numpy as np
@@ -37,10 +38,23 @@ class Data():
             self.samples = x_train.reshape((len(x_train),784))
             self.test_samples = x_test.reshape(len(x_test),784)
             self.data_index = np.arange(len(self.samples))
-            
+
         if dataset == 'cifar10':
             print('now initialize cifar10 data')
             (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+            self.labels = self.oneHotEncode(y_train)
+            self.test_labels = self.oneHotEncode(y_test)
+
+            x_train = x_train.astype('float32') / 255.
+            x_test = x_test.astype('float32') / 255.
+
+            self.samples = x_train.reshape((len(x_train),32*32*3))
+            self.test_samples = x_test.reshape(len(x_test),32*32*3)
+            self.data_index = np.arange(len(self.samples))
+
+        if dataset == 'cifar100':
+            print('now initialize cifar100 data')
+            (x_train, y_train), (x_test, y_test) = cifar100.load_data(label_mode='fine')
             self.labels = self.oneHotEncode(y_train)
             self.test_labels = self.oneHotEncode(y_test)
 
