@@ -33,22 +33,72 @@ def main():
         [1,3] # inner max pool layer, number starts from 0, 2 means 3rd conv layer
     ]
     
+    NIN_light_params =  [
+            {
+                "kernel_size": 3,
+                "n_filters": 192,
+                "mlp": [
+                    {
+                        "kernel_size": 1, # should be fixed to 1
+                        "n_filters": 160
+                    }
+                    
+                ]
+            },
+            {
+                "kernel_size": 3,
+                "n_filters": 192,
+                "mlp": [
+                    {
+                        "kernel_size": 1, # should be fixed to 1
+                        "n_filters": 192
+                    }
+                ]
+            },
+            {
+                "kernel_size": 3,
+                "n_filters": 192,
+                "mlp": [
+                    {
+                        "kernel_size": 1, # should be fixed to 1
+                        "n_filters": 10
+                    }
+                ]
+            }
+        ]
+
 
     model_selected = cnn6_params
-    model = student_networks.DeepConvNet(
-        xs, # inputs
-        [28,28], # image size
-        1, # chennel
-        model_selected[0],
-        model_selected[1],
-        model_selected[2],
-        10, # num of classes
-        5, # temperature
-        .9, # weight of student-teacher loss
-        1e-3, # learning rate
-    )
+    # model = student_networks.DeepConvNet(
+    #     xs, # inputs
+    #     [28,28], # image size
+    #     1, # chennel
+    #     model_selected[0],
+    #     model_selected[1],
+    #     model_selected[2],
+    #     10, # num of classes
+    #     5, # temperature
+    #     .9, # weight of student-teacher loss
+    #     1e-3, # learning rate
+    # )
 
-    model.calc_training_loss(None,ys)
+    model = NiN(
+            32,
+            3,
+            10,
+            NIN_light_params
+        )
+
+
+    model = NiN(
+        32, # image_size
+        3, #channel
+        10, # n_classes
+        NIN_params # network in network parameters
+        )
+
+    model.build_model(xs_image)
+    model.calc_training_loss(ys,None)
 
 
     sess = tf.Session()
