@@ -159,11 +159,17 @@ class NiN():
         self.optimizer = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
 
 
-    def train(self,sess,dataset,iteration=30000,batch_size=256,display_step=100):
+     def train(self,sess,dataset,iteration=30000,batch_size=256,batch_size_of_test='all',display_step=100):
         
         if dataset:
             dataset.reset()
-
+        if batch_size_of_test == 'all':
+            test_samples = dataset.test_samples
+            test_labels = dataset.test_labels
+        else:
+            test_samples = dataset.test_samples[:batch_size_of_test]
+            test_labels = dataset.test_labels[:batch_size_of_test]
+            
         for i in range(iteration):
             batch_xs, batch_ys = dataset.next_batch(batch_size)
             feed_dict = {
@@ -172,17 +178,16 @@ class NiN():
                 self.dropout: 0.5
             }
             
-            opt, training_loss, outputs = sess.run([self.optimizer, self.loss, self.output_logits], feed_dict=feed_dict)
+            _, training_loss, outputs = sess.run([self.optimizer, self.loss, self.output_logits], feed_dict=feed_dict)
 
             if i % display_step == 0:
-                predicts = sess.run([self.output_logits], feed_dict={xs: dataset.test_samples[:1000], self.dropout: 1})
-                correct = np.equal(np.argmax(predicts[0],1),np.argmax(dataset.test_labels[:1000],1))
+                predicts = sess.run([self.output_logits], feed_dict={xs: test_samples, self.dropout: 1})
+                correct = np.equal(np.argmax(predicts[0],1),np.argmax(test_labels,1))
                 test_acc = np.mean(correct*1)
                 correct = np.equal(np.argmax(outputs,1),np.argmax(batch_ys,1))
                 training_acc = np.mean(correct*1)
                 print('iteration: {:}  epoch: {:}  batch loss: {:.6}   training acc: {:.4}   test acc: {:.4}'.format(i, fmnist_data.epoch, training_loss, training_acc, test_acc))
-                
-
+   
     def test(self,sess,dataset):
         predicts = sess.run([self.output_logits], feed_dict={xs: dataset.test_samples, self.dropout: 1})
         correct = np.equal(np.argmax(predicts[0],1),np.argmax(dataset.test_labels,1))

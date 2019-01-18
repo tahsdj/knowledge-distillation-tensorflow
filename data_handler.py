@@ -38,6 +38,20 @@ class Data():
             self.test_samples = x_test.reshape(len(x_test),784)
             self.data_index = np.arange(len(self.samples))
             
+        if dataset == 'cifar10':
+            print('now initialize cifar10 data')
+            (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+            self.labels = self.oneHotEncode(y_train)
+            self.test_labels = self.oneHotEncode(y_test)
+
+            x_train = x_train.astype('float32') / 255.
+            x_test = x_test.astype('float32') / 255.
+
+            self.samples = x_train.reshape((len(x_train),32*32*3))
+            self.test_samples = x_test.reshape(len(x_test),32*32*3)
+            self.data_index = np.arange(len(self.samples))
+
+            
     def oneHotEncode(self, data):
         print('Shape of data (BEFORE encode): %s' % str(data.shape))
         encoded = to_categorical(data)
